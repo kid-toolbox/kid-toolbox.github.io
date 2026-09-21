@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>背单词闯关</title>
+<link rel="stylesheet" href="style.css">
+<body>
+
+<div class="top">
+  <button class="back" id="btnBack" title="返回">←</button>
+  <span class="title">背单词闯关</span>
+  <span class="spacer"></span>
+  <div class="prog" id="progwrap">
+    <div class="track"><div class="fill" id="fill"></div></div>
+    <span class="num" id="pnum">0 / 0</span>
+  </div>
+  <div class="stars" id="stars"></div>
+  <span class="num" id="starNum" title="一共拿到的星星">0</span>
+  <button class="back" id="btnSetup" title="换词表">⚙</button>
+</div>
+
+<div class="stage" id="stage"></div>
+
+<div class="steps" id="steps"></div>
+
+<!-- 设置 -->
+<div class="stage" id="setup" hidden>
+  <div class="q" style="min-height:0;align-items:stretch;text-align:left">
+    <div class="ask" style="text-align:center">词表</div>
+    <textarea id="words" spellcheck="false" placeholder="一行一个词，例如：&#10;family&#10;mother&#10;daughter"></textarea>
+    <div class="stat" id="wcount" style="color:var(--muted);font-size:13px"></div>
+    <div class="btnrow">
+      <button class="btn" id="btnShuffle">打乱顺序</button>
+      <select id="num" class="btn" style="text-align:center">
+        <option value="5">一轮 5 个词</option>
+        <option value="10" selected>一轮 10 个词</option>
+        <option value="15">一轮 15 个词</option>
+        <option value="20">一轮 20 个词</option>
+        <option value="999">全部</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="q" style="min-height:0;text-align:left;align-items:stretch">
+    <div class="ask" style="text-align:center">每一轮怎么过</div>
+    <div style="display:flex;flex-direction:column;gap:9px;font-size:15px;color:#39424c">
+      <div>🔊 <b>听词选意思</b> — 放音，选出对应的中文</div>
+      <div>🔤 <b>拼单词</b> — 把打乱的字母点成正确顺序</div>
+      <div>🧩 <b>排音节</b> — 听音节排顺序（<i>词没有音节数据就自动跳过</i>）</div>
+      <div>✍️ <b>看意思写</b> — 用四线三格把单词写出来</div>
+    </div>
+  </div>
+
+  <button class="btn primary wide" id="btnStart" style="align-self:center">开始闯关</button>
+
+  <div style="text-align:center;color:var(--muted);font-size:13px;line-height:1.7">
+    词表存在<b>你自己的浏览器</b>里，不上传、不联网。<br>
+    答错的词会自动记进「生词本」，可以到<a href="../index.html" style="color:var(--accent)">单词卡</a>页面做成默写纸打印。
+  </div>
+</div>
+
+<div class="fb" id="fb"></div>
+<div class="confetti" id="confetti"></div>
+<button class="back sr" id="btnHome">返回看板</button>
+
+<script src="../../data/en-zh.js"></script>
+<script src="../../data/words-unit1.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
