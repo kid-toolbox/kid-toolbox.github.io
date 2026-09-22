@@ -463,37 +463,100 @@
     q.appendChild(el('div', 'zhbig', it.zh || it.w));
     q.appendChild(speakBtn(it.w, true));
 
+    var target = it.w.toLowerCase();
+    // 答案放这里：点「看答案」后才填进去（先空着，不然泄题）
     var box = el('div', 'lines');
-    box.appendChild(fourLines(''));
     q.appendChild(box);
 
-    var hint = el('div', 'fb');
-    hint.className = 'fb';
+    // 真·输入：每个字母一个格子，逐格判断对错
+    var wrap = el('div', 'typewrap');
+    var input = el('input', 'typein');
+    input.type = 'text';
+    input.inputMode = 'text';
+    input.setAttribute('autocomplete', 'off');
+    input.setAttribute('autocorrect', 'off');
+    input.setAttribute('autocapitalize', 'off');
+    input.setAttribute('spellcheck', 'false');
+    input.setAttribute('aria-label', '在这里输入单词');
+    input.maxLength = target.length + 4;
+
+    var labels = el('div', 'typelabels');
+    var cells = [];
+    for (var ci = 0; ci < target.length; ci++) {
+      var c = el('span', 'tcell');
+      cells.push(c);
+      labels.appendChild(c);
+    }
+    wrap.appendChild(input);
+    wrap.appendChild(labels);
+
+    var autoTimer = null;
+    function paint(auto) {
+      var v = norm(input.value);
+      cells.forEach(function (c, k) {
+        var ch = v[k] || '';
+        c.textContent = ch;
+        c.className = 'tcell' + (!ch ? '' : (ch === target[k] ? ' ok' : ' no'));
+        if (k === v.length - 1 && ch) c.classList.add('cur');
+      });
+      clearTimeout(autoTimer);
+      if (!auto) return;
+      if (v.length < target.length) return;
+      if (v === target) {
+        autoTimer = setTimeout(function () { if (!S.locked) good('写对了！', it); }, 420);
+      } else {
+        autoTimer = setTimeout(function () {
+          if (S.locked) return;
+          sfx('nudge');
+          say('bad', '再想想', '红色的字母位置不对，点小喇叭听一遍', 2200);
+        }, 420);
+      }
+    }
+    input.addEventListener('input', function () {
+      if (S.locked) return;
+      var v = input.value.replace(/[^A-Za-z]/g, '');
+      if (v !== input.value) input.value = v;
+      paint(true);
+    });
 
     var row = el('div', 'btnrow');
     var bShow = el('button', 'btn', '看答案');
-    var bOk = el('button', 'btn primary', '写好了 ✓');
+    var bOk = el('button', 'btn primary', '检查 ✓');
     var answered = false;
 
     bShow.addEventListener('click', function () {
       if (answered) return;
       answered = true;
       box.innerHTML = '';
-      box.appendChild(fourLines(it.w, 30));   // 用四线三格当书写参考
+      box.appendChild(fourLines(it.w, 30));
       bShow.disabled = true;
       bOk.textContent = '记住了 ✓';
+      input.blur();
+      // 答案同时填进格子：让孩子把「四线三格上的字」和「格子里的字母」对上
+      input.value = it.w;
+      paint(false);
       say('bad', '没关系，多看两遍', it.w + (it.ipa ? '  /' + it.ipa + '/' : ''), 0);
     });
+
+    // 手动点「检查」
     bOk.addEventListener('click', function () {
-      var clean = answered;   // 看过答案的算「需要再练」，不计入一次过关
-      if (clean) { good('记住了就好！', it); }
-      else { good('真棒！', it); }
-      if (clean) { S.miss.push(it.w); addWrong(it.w); }
+      if (answered) {                       // 看过答案 → 算需要再练
+        S.miss.push(it.w); addWrong(it.w);
+        return good('记住了就好！', it);
+      }
+      var got = norm(input.value);
+      if (!got) { sfx('nudge'); say('bad', '先写点东西吧', '点上面的格子就能打字', 1600); return; }
+      if (got === norm(it.w)) return good('写对了！', it);
+      sfx('nudge');
+      say('bad', '再想想', '差 ' + Math.abs(got.length - it.w.length) + ' 个字母？先点小喇叭听一遍', 2200);
     });
 
     row.appendChild(bShow); row.appendChild(bOk);
+    q.appendChild(wrap);
     q.appendChild(row);
+    q.appendChild(el('p', 'tip', '答对会自己跳到下一个词'));
     $('#stage').appendChild(q);
+    setTimeout(function () { try { input.focus(); } catch (e) { } }, 420);
   }
 
   /* 四线三格（跟 words/ 里同一套比例，字号反推线距） */
