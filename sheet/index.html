@@ -122,8 +122,7 @@
       满 20 行一页；不足补空白行；超过 20 个自动排成多套。
     </p>
     <p class="hint">
-      <b>说明</b>：本站是<b>离线阉割版</b> —— 词库里约 60 个词带「重点音标 / 记忆点 / 分级」，
-      其余词只出音标和中文。完整版在本机用 skill 生成。
+      课本常见的词会自动带上<b>记忆点</b>和<b>分级</b>；其他单词先显示音标和中文。
     </p>
   </aside>
   <main class="stage"><div id="pages"></div></main>
@@ -389,7 +388,7 @@ function fit(){
   document.documentElement.style.setProperty('--s', s.toFixed(3));
 }
 
-const DEMO = 'China, sleep, flower, drink, see, water, think, dance, mom, cat, bus, elephant, milk, father, jump, America, Shanghai, rice, write, kick';
+const DEMO = 'mix, mural, ocean, sand, seaweed, seashell, jellyfish, starfish, artist, draw, pen, shape, bedroom, boat, pencil, animal, mountain, teacher';
 document.getElementById('words').value = DEMO;
 document.getElementById('words').addEventListener('input', () => { clearTimeout(window.__t); window.__t = setTimeout(render, 180); });
 document.getElementById('demo').onclick = () => { document.getElementById('words').value = DEMO; render(); };
