@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>英文抄写默写纸 · 四线三格</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  @font-face{ font-family:'Andika'; src:url('../assets/fonts/andika-regular.woff2') format('woff2');
+              font-weight:400; font-style:normal; font-display:block; }
+  @font-face{ font-family:'Andika'; src:url('../assets/fonts/andika-bold.woff2') format('woff2');
+              font-weight:700; font-style:normal; font-display:block; }
+  :root{ --s:1; }
+  body{ background:#eef0f4; }
+
+  .bar{ position:sticky; top:0; z-index:30; background:#fff; border-bottom:1px solid var(--line);
+        display:flex; align-items:center; gap:12px; padding:10px 16px; flex-wrap:wrap; }
+  .bar h1{ font-size:16.5px; margin:0; }
+  .bar .sub{ color:var(--muted); font-size:12.5px; }
+  .bar .spacer{ flex:1; }
+  .btn{ font:inherit; font-size:14px; min-height:38px; padding:0 14px; border-radius:9px;
+        border:1px solid var(--line); background:#fff; cursor:pointer; }
+  .btn:hover{ border-color:#cfd6de; }
+  .btn.primary{ background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+
+  .layout{ display:flex; align-items:flex-start; }
+  .panel{ width:330px; flex:0 0 330px; background:#fff; border-right:1px solid var(--line);
+          padding:14px 16px 40px; position:sticky; top:59px; max-height:calc(100vh - 59px); overflow:auto; }
+  .panel h2{ font-size:12.5px; color:var(--muted); letter-spacing:1px; margin:0 0 8px; }
+  .panel textarea{ width:100%; min-height:120px; border:1px solid var(--line); border-radius:9px;
+                   padding:10px; font:inherit; font-size:14px; line-height:1.7; resize:vertical; outline:none; }
+  .panel textarea:focus{ border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+  .hint{ font-size:12px; color:var(--muted); margin-top:8px; line-height:1.6; }
+  .rowbtn{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+  .rowbtn .btn{ flex:1; font-size:13px; min-height:34px; padding:0 8px; }
+
+  .stage{ flex:1 1 auto; min-width:0; padding:18px 12px 60px; display:flex;
+          flex-direction:column; align-items:center; }
+  .scaler{ transform:scale(var(--s)); transform-origin:top left;
+           width:calc(210mm * var(--s)); height:calc(297mm * var(--s)); }
+  .page-slot{ margin-bottom:16px; }
+
+  /* ---------- A4 页 ---------- */
+  .page{ width:210mm; height:297mm; background:#fff; padding:9mm 11mm 8mm;
+         position:relative; overflow:hidden; box-shadow:0 1px 3px rgba(16,24,40,.1),0 10px 30px -14px rgba(16,24,40,.25); }
+  .head{ display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:end;
+         gap:6mm; border-bottom:1.2px solid #d8dfe6; padding-bottom:2mm; margin-bottom:1.8mm; }
+  .head h1{ justify-self:start; font-size:15pt; font-weight:700; margin:0; letter-spacing:.4px; }
+  .meta{ display:flex; gap:7mm; font-size:8.6pt; color:#55606c; }
+  .meta span{ display:inline-flex; align-items:flex-end; gap:1.6mm; }
+  .meta i{ display:inline-block; width:18mm; border-bottom:.9px solid #8fa3b8; height:3.4mm; }
+  .tips{ justify-self:end; font-size:8pt; color:#7b8794; text-align:right; line-height:1.5; }
+
+  .row{ display:grid; align-items:center; height:13.1mm; }
+  .lab{ line-height:1.2; }
+  .lab .no{ font-family:'Andika',sans-serif; display:inline-block; width:4.2mm; font-size:7pt; font-weight:700; color:#9aa7b4; }
+  .lab .ipa{ font-family:'Andika','PingFang SC',sans-serif; font-weight:700; font-size:8.8pt; color:#2b6cb0; }
+  .lab .ph{ font-family:'Andika','PingFang SC',sans-serif; font-weight:700; font-size:8.4pt; color:#b9691a; margin-left:4.2mm; }
+  .gridwrap{ line-height:0; }
+  svg.ln{ display:block; overflow:visible; }
+
+  .zhcol{ line-height:1.2; padding-left:2mm; border-left:.25mm solid #e6ecf2; }
+  .zh1{ font-size:11.2pt; color:#22272e; }
+  .lv{ display:inline-block; font-family:'Andika','PingFang SC',sans-serif; font-size:7pt; color:#7d8794; border:.2mm solid #d5dde5;
+       border-radius:1mm; padding:0 1.2mm; margin-right:1.6mm; position:relative; top:-1px; }
+  .fr{ display:inline-block; font-size:7pt; color:#c08a3e; letter-spacing:-.2mm;
+       margin-right:1.6mm; position:relative; top:-1px; }
+  .hook{ font-family:'Andika','PingFang SC',sans-serif; font-size:6.6pt; color:#a06a2c; margin-top:.6mm; line-height:1.25; }
+
+  .dno{ font-size:7pt; font-weight:700; color:#9aa7b4; }
+  .dzh{ font-size:11.2pt; color:#22272e; text-align:left; line-height:1.15; }
+  .dipa{ font-family:'Andika','PingFang SC',sans-serif; font-weight:700; font-size:8.8pt; color:#2b6cb0; white-space:nowrap; }
+  .dhint{ font-family:'Andika','PingFang SC',sans-serif; font-weight:700; font-size:8.4pt; color:#57606b; line-height:1.35;
+          padding-left:2mm; border-left:.25mm solid #e6ecf2; }
+  .dhint em{ font-style:normal; text-decoration:underline; text-decoration-color:#c9803a;
+             text-decoration-thickness:.2mm; text-underline-offset:.5mm; }
+
+  .foot{ position:absolute; left:11mm; right:11mm; bottom:5mm; display:flex;
+         justify-content:space-between; font-size:7.2pt; color:#98a4b0;
+         border-top:.8px solid #e6ebf0; padding-top:1.4mm; }
+
+  /* ---------- 说明 ---------- */
+  .docs{ max-width:880px; margin:0 auto 60px; padding:0 20px; }
+  .docs h2{ font-size:16px; margin:28px 0 10px; }
+  .docs p, .docs li{ font-size:13.5px; color:#39424c; line-height:1.85; }
+  .docs table{ width:100%; border-collapse:collapse; font-size:13px; margin:10px 0 18px; }
+  .docs th,.docs td{ border-bottom:1px solid var(--line); padding:7px 10px; text-align:left; vertical-align:top; }
+  .docs th{ color:var(--muted); font-weight:600; background:#fafbfc; }
+  .docs code{ background:#eef2f7; border-radius:4px; padding:1px 5px; font-size:12.5px; }
+  .note{ background:#fff8e8; border:1px solid #f0dcb4; border-radius:10px; padding:12px 14px; font-size:13px; }
+
+  @media print{
+    @page{ size:A4; margin:0; }
+    body{ background:#fff; }
+    .bar,.panel,.docs{ display:none !important; }
+    .layout{ display:block; }
+    .stage{ padding:0; display:block; }
+    .scaler{ transform:none !important; width:auto; height:auto; }
+    .page-slot{ margin:0; }
+    .page{ box-shadow:none; page-break-after:always; break-after:page; }
+    .page:last-child{ page-break-after:auto; break-after:auto; }
+  }
+</style>
+
+<div class="bar">
+  <a class="btn" href="../index.html">← 工具箱</a>
+  <h1>英文抄写默写纸</h1>
+  <span class="sub">四线三格 · 正面抄写 / 反面默写</span>
+  <span class="spacer"></span>
+  <button class="btn primary" id="print">打印 / 存 PDF</button>
+</div>
+
+<div class="layout">
+  <aside class="panel">
+    <h2>单词</h2>
+    <textarea id="words" spellcheck="false"></textarea>
+    <div class="rowbtn">
+      <button class="btn" id="demo">填入示例</button>
+      <button class="btn" id="clear">清空</button>
+    </div>
+    <p class="hint">
+      逗号、空格、换行都行。专有名词请保留大写（China）。<br>
+      满 20 行一页；不足补空白行；超过 20 个自动排成多套。
+    </p>
+    <p class="hint">
+      <b>说明</b>：本站是<b>离线阉割版</b> —— 词库里约 60 个词带「重点音标 / 记忆点 / 分级」，
+      其余词只出音标和中文。完整版在本机用 skill 生成。
+    </p>
+  </aside>
+  <main class="stage"><div id="pages"></div></main>
+</div>
+
+<div class="docs">
+  <h2>这张纸怎么用</h2>
+  <p><b>正面抄写</b>：第一格是范字（浅色底），后面三格临写。<b>反面默写</b>：看中文写英文，写完再看右边的重点音标。</p>
+  <p>四线三格总高 9mm，和中国小学英语练习本一致。字母 <code>a c e o m n</code> 的高度正好等于中间一格，
+  头顶贴第 2 条线、底坐第 3 条线（基线）；<code>g p y</code> 的下伸落在第 4 条线以上。</p>
+
+  <h2>音标（IPA）</h2>
+  <p>本站用<b>英式音标</b>。几个符号：</p>
+  <ul>
+    <li><code>ˈ</code> 主重音，标在重读音节<b>前面</b>（不是元音头上）</li>
+    <li><code>ː</code> 长音 —— 汉语没有长短对立，孩子容易读短，要拉长</li>
+    <li><code>æ</code> 汉语没有，嘴巴扁、下巴下沉，介于「埃」和「啊」之间</li>
+    <li><code>ə</code> 弱读央元音，非重读音节轻轻带过</li>
+    <li><code>ð</code> 舌尖轻触上下齿，声带振动（不是 d）</li>
+  </ul>
+
+  <h2>自然拼读（拼读切分）</h2>
+  <p>把单词按「哪几个字母发哪个音」切开，例如 <code>l-igh-t</code>、<code>sea-shell</code>。
+  元音组合整体不拆（<code>ee / igh / ay / ow / ar</code>），因为孩子要记的是「这个组合发这个音」。</p>
+
+  <h2>分级（CEFR）</h2>
+  <table>
+    <tr><th style="width:90px">标记</th><th>含义</th></tr>
+    <tr><td><b>A1</b></td><td>入门级。小学低年级高频词，日常对话立刻能用（pen、boat、teacher）</td></tr>
+    <tr><td><b>A2</b></td><td>基础级。小学中高年级常见词，能说明身边事物（ocean、artist、jellyfish）</td></tr>
+    <tr><td><b>B1</b></td><td>进阶级。明显超出日常，通常是阅读里遇到的词（mural 壁画）</td></tr>
+    <tr><td><b>B2+</b></td><td>流利级，小学阶段基本用不到</td></tr>
+  </table>
+  <p>用途：判断一个词<b>值不值得现在花时间</b>。满屏 B1 就说明这一课偏难，可以先放过。</p>
+
+  <h2>词频（★）</h2>
+  <p>星数来自 <a href="https://github.com/skywind3000/ECDICT" target="_blank" rel="noopener">ECDICT</a>（MIT）里的
+  <code>bnc</code> / <code>frq</code> 排名，取两者中更靠前的名次：</p>
+  <table>
+    <tr><th style="width:90px">星级</th><th>排名</th><th>含义</th></tr>
+    <tr><td><b>★★★</b></td><td>前 1,000</td><td>英语的骨架词，必须秒认秒写</td></tr>
+    <tr><td><b>★★</b></td><td>前 3,000</td><td>高频，日常够用</td></tr>
+    <tr><td><b>★</b></td><td>前 10,000</td><td>有一定使用面，值得学</td></tr>
+    <tr><td>（无星）</td><td>10,000 名以外</td><td>低频或专有名词，认识就行，不必死练拼写</td></tr>
+  </table>
+  <p class="note">分级看「难度」，词频看「用得上用不上」。两者一起看：
+  <b>A1 + ★★★</b> = 必须掌握；<b>B1 + 无星</b> = 知道就好。</p>
+
+  <h2>记忆点</h2>
+  <p>只在真正有钩子的时候才给，不是每个词都有。挑的角度按优先级：</p>
+  <ol>
+    <li><b>合成词拆解</b> —— 最好用。<code>sea + shell</code>、<code>jelly + fish</code>（果冻鱼→水母）、<code>bed + room</code></li>
+    <li><b>不发音字母</b> —— <code>write</code> 的 w 不发音、<code>light</code> 的 gh 不发音</li>
+    <li><b>易混 / 近音</b> —— <code>draw / drawer</code>、<code>pen / pan</code></li>
+    <li><b>超常用搭配</b> —— <code>climb a mountain</code>、<code>a grain of sand</code>（顺便教不可数）</li>
+  </ol>
+  <p>原则是<b>帮孩子记住这个词</b>，不是讲这个词的故事。词源（比如 pen 来自拉丁 penna「羽毛」）留到以后再说。</p>
+
+  <h2>打印</h2>
+  <p>A4、缩放 100%（不要「适合页面」）、长边双面。正面抄写、反面默写。</p>
+</div>
+
+<script src="../data/en-zh.js"></script>
+<script src="../data/sheet-data.js"></script>
+<script>
+'use strict';
+/* ===== 版面常量（与本地 skill 完全一致） ===== */
+const CONTENT = 188, PADL = 11, PADR = 11;
+const ROW_H = 13.1, HEAD_H = 14.5, GRID = 9, SPACE = 3, FS = 3 / 0.498;
+const ROWS = 20;
+const IPA_PT = 8.8, PH_PT = 8.4, HINT_PT = 8.4, ZH_PT = 11.2, HOOK_PT = 6.6, LV_PT = 7;
+const LV_W = 7, FR_W = 9.5, PTMM = 25.4 / 72;
+const PAD_CELL = 4;
+
+const ADV = {a:.5615,b:.5640,c:.4980,d:.5811,e:.5347,f:.3662,g:.5493,h:.5737,i:.2759,j:.2905,
+  k:.5054,l:.2759,m:.8228,n:.5786,o:.5566,p:.5713,q:.5518,r:.4346,s:.4712,t:.4077,u:.5786,
+  v:.5225,w:.7568,x:.5298,y:.5176,z:.5078,"ˈ":.2148,"ˌ":.2148,"ː":.2173,"ə":.5264,"ʊ":.5908,
+  "ɪ":.4102,"ŋ":.5786,"ɡ":.5493,"æ":.8521,"ɜ":.4590,"ɒ":.5713,"ð":.5664,"θ":.5664,"ʃ":.3540,
+  "ʒ":.5005,"ʌ":.5225,"ɑ":.5615,"ɛ":.4736,"/":.4883," ":.2686,".":.3125,"·":.3315,"|":.3369,
+  "~":.5444,"-":.4199,"+":.6,"→":1.0,
+  A:.6812,B:.6274,C:.6616,D:.7007,E:.5664,F:.5615,G:.6934,H:.7202,I:.4761,J:.4712,K:.6396,
+  L:.5273,M:.8765,N:.7324,O:.7129,P:.5835,Q:.7202,R:.6372,S:.5737,T:.6177,U:.7031,V:.6665,
+  W:1.0156,X:.6470,Y:.6445,Z:.6006};
+const ADV_B = {a:.6133,b:.5933,c:.4990,d:.6177,e:.5420,f:.3906,g:.5786,h:.6030,i:.3125,j:.3271,
+  k:.5557,l:.3125,m:.8594,n:.6079,o:.5664,p:.6030,q:.5908,r:.4858,s:.5054,t:.4321,u:.6079,
+  v:.5391,w:.7666,x:.5786,y:.5371,z:.5176,"ˈ":.2295,"ˌ":.2295,"ː":.2271,"ə":.5298,"ʊ":.6045,
+  "ɪ":.4590,"ŋ":.6079,"ɡ":.5493,"æ":.8682,"ɜ":.4688,"ɒ":.6133,"ð":.5679,"θ":.5762,"ʃ":.3857,
+  "ʒ":.5322,"ʌ":.5391,"ɑ":.6133,"ɛ":.4785,"/":.5273," ":.2686,".":.3467,"·":.3662,"|":.3369,
+  "~":.5444,"-":.4370,"+":.62,"→":1.05,
+  A:.7251,B:.6763,C:.6763,D:.7251,E:.5918,F:.5859,G:.7188,H:.7397,I:.5103,J:.5029,K:.6982,
+  L:.5518,M:.9058,N:.7544,O:.7324,P:.6226,Q:.7544,R:.6738,S:.6069,T:.6177,U:.7275,V:.7153,
+  W:1.0425,X:.6665,Y:.6660,Z:.6104};
+
+const isCJK = c => /[⺀-鿿豈-﫿＀-￯]/.test(c);
+function ew(s, bold){
+  const t = bold ? ADV_B : ADV; let v = 0;
+  for (const c of s) v += isCJK(c) ? 1.02 : (t[c] !== undefined ? t[c] : 0.55);
+  return v;
+}
+const tw = (s, pt, bold) => ew(s, bold) * pt * PTMM;
+const plain = h => h.replace(/<\/?em>/g, '');
+
+function freqStars(w){
+  const b = (window.SHEET_RANK || {})[w.toLowerCase()];
+  return b === 3 ? '★★★' : b === 2 ? '★★' : b === 1 ? '★' : '';
+}
+
+/* ===== 查词 ===== */
+function lookup(w){
+  const W = window.SHEET_WORDS || {}, E = window.ENZH || {};
+  const k = W[w] ? w : (W[w.toLowerCase()] ? w.toLowerCase() : null);
+  const e = E[w] || E[w.toLowerCase()];
+  const base = k ? Object.assign({}, W[k]) : {};
+  if (!base.ipa && e) base.ipa = e[0];
+  if (!base.zh && e) base.zh = e[2];
+  base.w = w;
+  return base;
+}
+
+/* ===== 音标归类尾注 ===== */
+function markWord(w, mk, at){
+  if (!mk) return w;
+  const i = (at != null) ? at : w.indexOf(mk);
+  if (i < 0 || w.slice(i, i + mk.length) !== mk) return w;
+  return w.slice(0, i) + '<em>' + mk + '</em>' + w.slice(i + mk.length);
+}
+function buildHints(items, mw){
+  const sheet = items.filter(x => !x.blank);
+  return items.map(it => {
+    if (it.blank || !it.snd) return '';
+    const others = sheet.filter(x => x !== it && x.snd === it.snd);
+    const taken = new Set([it.w].concat(others.map(o => o.w)));
+    const extra = (window.SHEET_EXAMPLES || []).filter(e => e.snd === it.snd && !taken.has(e.w));
+    const chosen = others.slice(0, mw - 1);
+    chosen.push(...extra.slice(0, mw - 1 - chosen.length));
+    const seq = chosen.concat([it]);
+    return '/' + it.snd + '/ | ' + seq.map(m => markWord(m.w, m.mk, m.mk_at)).join(' · ');
+  });
+}
+
+/* ===== 排版 ===== */
+function chooseLayout(items){
+  const live = items.filter(x => !x.blank);
+  const cellMin = Math.max(...live.map(r => ew(r.w) * FS), 18) + PAD_CELL;
+  const maxIpa = Math.max(10, ...live.map(r => tw('/' + (r.ipa || '') + '/', IPA_PT, true)));
+  const maxPh  = Math.max(10, ...live.map(r => tw(r.ph || '', PH_PT, true)));
+  const left = Math.max(22, maxIpa + 4.5, maxPh + 4.2 + 1.5);
+  const zhW = Math.max(22, Math.max(8, ...live.map(r => ew(r.zh || '') * ZH_PT * PTMM)) + 2);
+  const ipaW = Math.max(13, maxIpa + 2.5);
+  const hookW = Math.max(0, ...live.map(r => ew(r.hook || '') * HOOK_PT * PTMM));
+  const lvExtra = (live.some(r => r.cefr) ? LV_W : 0) + (live.some(r => freqStars(r.w)) ? FR_W : 0);
+  const rightMin = Math.max(zhW + lvExtra, hookW + 2, 30);
+
+  let fallback = null;
+  for (let nb = 3; nb >= 1; nb--){
+    for (let mw = 3; mw >= 1; mw--){
+      const hints = buildHints(items, mw);
+      const need = Math.max(0, ...hints.filter(Boolean).map(h => tw(plain(h), HINT_PT, true))) + 4.5;
+      const cell = Math.min((CONTENT - left - rightMin) / (nb + 1),
+                            (CONTENT - 5 - zhW - ipaW - need) / nb);
+      if (cell < cellMin - 0.01) continue;
+      return { cell, nb, left, zhW, ipaW, hints,
+               hintW: CONTENT - 5 - zhW - ipaW - nb * cell,
+               rightW: CONTENT - left - (nb + 1) * cell };
+    }
+  }
+  const hints = buildHints(items, 1), nb = 1, cell = cellMin;
+  return { cell, nb, left, zhW, ipaW, hints,
+           hintW: Math.max(16, CONTENT - 5 - zhW - ipaW - nb * cell),
+           rightW: Math.max(rightMin, CONTENT - left - (nb + 1) * cell) };
+}
+
+/* ===== SVG 四线三格 ===== */
+function gridSVG(width, blanks, cell, example, exW, tint){
+  const h = SPACE * 3, ex = exW == null ? cell : exW;
+  const out = [];
+  out.push('<svg class="ln" viewBox="0 0 ' + width.toFixed(3) + ' ' + h.toFixed(3) +
+           '" preserveAspectRatio="none" style="width:' + width.toFixed(3) + 'mm;height:' + h.toFixed(3) + 'mm">');
+  if (tint) out.push('<rect x="0" y="0" width="' + ex.toFixed(3) + '" height="' + h.toFixed(3) + '" fill="#fdfaf3"/>');
+  [[0,.32,'#93a5b7'],[SPACE,.26,'#b6c4d2'],[2*SPACE,.48,'#6f869e'],[3*SPACE,.26,'#a7b7c7']]
+    .forEach(([y,w,c]) => out.push('<line x1="0" y1="' + y + '" x2="' + width.toFixed(3) + '" y2="' + y +
+      '" stroke="' + c + '" stroke-width="' + w + '" stroke-linecap="square"/>'));
+  const xs = example ? Array.from({length: blanks}, (_, k) => ex + cell * k)
+                     : Array.from({length: blanks - 1}, (_, k) => width * (k + 1) / blanks);
+  xs.forEach(x => { if (x > 0.01 && x < width - 0.01)
+    out.push('<line x1="' + x.toFixed(3) + '" y1="0" x2="' + x.toFixed(3) + '" y2="' + h +
+      '" stroke="#cfd9e3" stroke-width="0.25"/>'); });
+  if (example) out.push('<text x="' + (ex / 2).toFixed(3) + '" y="' + (2 * SPACE) +
+    '" text-anchor="middle" font-family="Andika" font-size="' + FS.toFixed(3) + '" fill="#1b1b1b">' +
+    example + '</text>');
+  out.push('</svg>');
+  return out.join('');
+}
+
+/* ===== 页面 ===== */
+function headHTML(title, tips){
+  return '<div class="head"><h1>' + title + '</h1>' +
+    '<div class="meta"><span>姓名<i></i></span><span>日期<i></i></span></div>' +
+    '<div class="tips">' + tips + '</div></div>';
+}
+function page1(rows, L){
+  const gw = (L.nb + 1) * L.cell;
+  const body = rows.map(it => {
+    if (it.blank) return '<div class="row" style="grid-template-columns:' + L.left.toFixed(2) + 'mm ' +
+      gw.toFixed(2) + 'mm ' + L.rightW.toFixed(2) + 'mm"><div class="lab"><span class="no">' + it.n +
+      '</span></div><div class="gridwrap">' + gridSVG(gw, L.nb, L.cell) + '</div><div class="zhcol"></div></div>';
+    const lv = it.cefr ? '<span class="lv">' + it.cefr + '</span>' : '';
+    const st = freqStars(it.w) ? '<span class="fr">' + freqStars(it.w) + '</span>' : '';
+    const hk = it.hook ? '<div class="hook">' + it.hook + '</div>' : '';
+    return '<div class="row" style="grid-template-columns:' + L.left.toFixed(2) + 'mm ' + gw.toFixed(2) +
+      'mm ' + L.rightW.toFixed(2) + 'mm"><div class="lab"><span class="no">' + it.n + '</span>' +
+      '<span class="ipa">/' + (it.ipa || '') + '/</span><div class="ph">' + (it.ph || '') + '</div></div>' +
+      '<div class="gridwrap">' + gridSVG(gw, L.nb, L.cell, it.w, L.cell, true) + '</div>' +
+      '<div class="zhcol"><div class="zh1">' + lv + st + (it.zh || '') + '</div>' + hk + '</div></div>';
+  }).join('');
+  return '<div class="page">' + headHTML('抄写练习', '字母小写，顶线不过头，基线不飘<br>专有名词（China）首字母大写') +
+    body + '<div class="foot"><span>共 ' + rows.length + ' 行</span><span>小朋友工具箱 · 四线三格</span></div></div>';
+}
+function page2(rows, L){
+  const gw = L.nb * L.cell;
+  const cols = '5mm ' + L.zhW.toFixed(2) + 'mm ' + L.ipaW.toFixed(2) + 'mm ' + gw.toFixed(2) + 'mm ' + L.hintW.toFixed(2) + 'mm';
+  const body = rows.map((it, i) => {
+    if (it.blank) return '<div class="row drow" style="grid-template-columns:' + cols + ';height:13.1mm"><span class="dno">' +
+      it.n + '</span><span class="dzh"></span><span class="dipa"></span><div class="gridwrap">' +
+      gridSVG(gw, L.nb, L.cell) + '</div><span class="dhint"></span></div>';
+    return '<div class="row drow" style="grid-template-columns:' + cols + ';height:13.1mm"><span class="dno">' +
+      it.n + '</span><span class="dzh">' + (it.zh || '') + '</span><span class="dipa">/' + (it.ipa || '') +
+      '/</span><div class="gridwrap">' + gridSVG(gw, L.nb, L.cell) + '</div><span class="dhint">' +
+      L.hints[i] + '</span></div>';
+  }).join('');
+  return '<div class="page">' + headHTML('默写练习', '看中文写英文，写完再看右边的重点音标<br>写不出来的先空着，最后再对照课本补') +
+    body + '<div class="foot"><span>共 ' + rows.length + ' 行</span><span>得分 ______ / ' + rows.length + '</span></div></div>';
+}
+
+/* ===== 主流程 ===== */
+function render(){
+  const raw = document.getElementById('words').value;
+  const list = raw.split(/[\s,，、;；\n]+/).map(s => s.trim()).filter(Boolean);
+  const pages = document.getElementById('pages');
+  if (!list.length){ pages.innerHTML = '<p style="color:#6b7580">左边输入单词，右边即时出页面。</p>'; return; }
+
+  const items = list.map(lookup);
+  const chunks = [];
+  for (let i = 0; i < items.length; i += ROWS) chunks.push(items.slice(i, i + ROWS));
+  if (!chunks.length) chunks.push([]);
+
+  let html = '';
+  chunks.forEach(chunk => {
+    const rows = chunk.map((it, i) => Object.assign({}, it, { n: i + 1 }));
+    while (rows.length < ROWS) rows.push({ n: rows.length + 1, blank: true });
+    const L = chooseLayout(rows);
+    html += '<div class="page-slot"><div class="scaler">' + page1(rows, L) + '</div></div>' +
+            '<div class="page-slot"><div class="scaler">' + page2(rows, L) + '</div></div>';
+  });
+  pages.innerHTML = html;
+  fit();
+}
+function fit(){
+  const stage = document.querySelector('.stage');
+  const pageW = 210 * 96 / 25.4;           // px
+  const avail = stage.clientWidth - 24;
+  const s = Math.min(1, avail / pageW);
+  document.documentElement.style.setProperty('--s', s.toFixed(3));
+}
+
+const DEMO = 'China, sleep, flower, drink, see, water, think, dance, mom, cat, bus, elephant, milk, father, jump, America, Shanghai, rice, write, kick';
+document.getElementById('words').value = DEMO;
+document.getElementById('words').addEventListener('input', () => { clearTimeout(window.__t); window.__t = setTimeout(render, 180); });
+document.getElementById('demo').onclick = () => { document.getElementById('words').value = DEMO; render(); };
+document.getElementById('clear').onclick = () => { document.getElementById('words').value = ''; render(); };
+document.getElementById('print').onclick = () => window.print();
+window.addEventListener('resize', fit);
+render();
+</script>
+</html>
