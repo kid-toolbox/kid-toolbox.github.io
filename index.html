@@ -15,10 +15,10 @@
   <div class="toolbar">
     <input type="search" id="q" placeholder="搜工具，例如：字帖、拼音、专注力">
     <button class="chip on" data-tag="全部">全部</button>
-    <button class="chip" data-tag="语文">语文</button>
+    <button class="chip" data-tag="英语">英语</button>
     <button class="chip" data-tag="数学">数学</button>
+    <button class="chip" data-tag="语文">语文</button>
     <button class="chip" data-tag="专注力">专注力</button>
-    <button class="chip" data-tag="表">表 / 卡片</button>
   </div>
 
   <p class="sec-title" id="secTitle">可用工具</p>
@@ -43,33 +43,33 @@ const SITE = {
 
 /* ===== 工具清单：新增一个工具 = 加一条 + 建一个同名目录 ===== */
 const TOOLS = [
-  { id:'tianzige', name:'田字格字帖生成器', emoji:'✍️', status:'live', path:'tianzige/index.html',
-    grade:'一年级', tags:['语文','写字'],
+  { id:'tianzige', name:'田字格字帖打印', emoji:'✍️', status:'live', path:'tianzige/index.html',
+    grade:'一年级', tags:['语文','打印'],
     desc:'粘贴生字，一键生成带笔顺、描红、占格提示的 A4 练习页。可调格子大小、每页字数、是否出笔顺。' },
 
   { id:'words', name:'英语单词卡', emoji:'🔤', status:'live', path:'words/index.html',
-    grade:'一年级', tags:['英语','表 / 卡片'],
+    grade:'一年级', tags:['英语'],
     desc:'粘贴课本词表，生成单词卡 / 默写纸 / 听写表。带音标、拆音节、例句，点一下就能朗读。' },
 
   { id:'learn', name:'背单词闯关', emoji:'🎮', status:'live', path:'words/learn/index.html',
-    grade:'一年级', tags:['英语','游戏','屏幕'],
+    grade:'一年级', tags:['英语'],
     desc:'听词选意思 → 拼单词 → 排音节 → 看意思写，一关一个词。答对有星星和撒花，答错不扣分。' },
 
-  { id:'sheet', name:'英文抄写默写纸', emoji:'📝', status:'live', path:'sheet/index.html',
-    grade:'一年级', tags:['英语','写字','打印'],
+  { id:'sheet', name:'英文抄写默写打印', emoji:'📝', status:'live', path:'sheet/index.html',
+    grade:'一年级', tags:['英语','打印'],
     desc:'输入这周的单词，生成 A4 双面练习纸：正面抄写加记词，反面默写。带英式音标、自然拼读切分、难度分级、词频星级和记忆点。' },
 
   { id:'shuerte', name:'舒尔特方格', emoji:'⏱️', status:'planned', grade:'5 岁以上', tags:['专注力'],
     desc:'5×5 数字找 1→25，每天计时记录，练视觉专注力。可打印。' },
   { id:'daka', name:'专注力打卡表', emoji:'📅', status:'planned', grade:'一年级', tags:['专注力'],
     desc:'坐姿/站姿 4 周阶梯打卡，贴冰箱打钩 + 星星奖励。' },
-  { id:'shizi', name:'识字卡 / 听写卡', emoji:'🃏', status:'planned', grade:'一年级', tags:['语文','表 / 卡片'],
+  { id:'shizi', name:'识字卡 / 听写卡', emoji:'🃏', status:'planned', grade:'一年级', tags:['语文'],
     desc:'按课文批量出识字卡；家长报词、孩子写，一页搞定。' },
   { id:'bishun', name:'笔顺描红（互动）', emoji:'👆', status:'planned', grade:'一年级', tags:['语文','写字'],
     desc:'在屏幕上跟着描，笔顺和位置写错会即时提示（基于 hanzi-writer）。' },
   { id:'kousuan', name:'口算练习', emoji:'➕', status:'planned', grade:'一年级', tags:['数学'],
     desc:'20 以内加减法，可设置题量、难度、是否打印。' },
-  { id:'kebiao', name:'课程表 / 作息表', emoji:'🗓️', status:'planned', grade:'通用', tags:['表 / 卡片'],
+  { id:'kebiao', name:'课程表 / 作息表', emoji:'🗓️', status:'planned', grade:'通用', tags:['作息'],
     desc:'自己填课程表、作息表，打印贴墙。' }
 ];
 
