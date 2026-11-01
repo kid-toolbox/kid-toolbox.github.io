@@ -166,10 +166,10 @@
     <tr><td><b>★★★</b></td><td>前 1,000</td><td>英语的骨架词，必须秒认秒写</td></tr>
     <tr><td><b>★★</b></td><td>前 3,000</td><td>高频，日常够用</td></tr>
     <tr><td><b>★</b></td><td>前 10,000</td><td>有一定使用面，值得学</td></tr>
-    <tr><td>（无星）</td><td>10,000 名以外</td><td>低频或专有名词，认识就行，不必死练拼写</td></tr>
+    <tr><td><b>☆</b></td><td>10,000 名以外</td><td>低频或专有名词，认识就行，不必死练拼写</td></tr>
   </table>
   <p class="note">分级看「难度」，词频看「用得上用不上」。两者一起看：
-  <b>A1 + ★★★</b> = 必须掌握；<b>B1 + 无星</b> = 知道就好。</p>
+  <b>A1 + ★★★</b> = 必须掌握；<b>B1 + ☆</b> = 知道就好。</p>
 
   <h2>记忆点</h2>
   <p>只在真正有钩子的时候才给，不是每个词都有。挑的角度按优先级：</p>
@@ -225,9 +225,27 @@ function ew(s, bold){
 const tw = (s, pt, bold) => ew(s, bold) * pt * PTMM;
 const plain = h => h.replace(/<\/?em>/g, '');
 
+/* 词频：先查原形；查不到就按常见屈折形式还原再查（-s/-es/-ies/-ed/-ing） */
+function rankBand(w){
+  const R = window.SHEET_RANK || {};
+  const k = w.toLowerCase();
+  if (R[k] !== undefined) return R[k];
+  const cands = [];
+  const push = s => { if (s && cands.indexOf(s) < 0) cands.push(s); };
+  const dbl = s => { if (/([b-df-hj-np-tv-z])\1$/.test(s)) push(s.slice(0, -1)); };
+  if (/ies$/.test(k)) push(k.slice(0, -3) + 'y');                          // studies → study
+  if (/ves$/.test(k)) { push(k.slice(0, -3) + 'f'); push(k.slice(0, -3) + 'fe'); } // knives → knife
+  if (/s$/.test(k) && !/ss$/.test(k)) push(k.slice(0, -1));                // parents → parent, shoes → shoe
+  if (/es$/.test(k)) push(k.slice(0, -2));                                 // boxes → box
+  if (/ied$/.test(k)) push(k.slice(0, -3) + 'y');                          // tried → try
+  if (/ed$/.test(k)) { push(k.slice(0, -1)); dbl(k.slice(0, -2)); push(k.slice(0, -2)); } // liked→like, stopped→stop, played→play
+  if (/ing$/.test(k)) { push(k.slice(0, -3) + 'e'); dbl(k.slice(0, -3)); push(k.slice(0, -3)); } // making→make, running→run, watching→watch
+  for (const c of cands) if (R[c] !== undefined) return R[c];
+  return 0;
+}
 function freqStars(w){
-  const b = (window.SHEET_RANK || {})[w.toLowerCase()];
-  return b === 3 ? '★★★' : b === 2 ? '★★' : b === 1 ? '★' : '';
+  const b = rankBand(w);
+  return b === 3 ? '★★★' : b === 2 ? '★★' : b === 1 ? '★' : '☆';
 }
 
 /* ===== 查词 ===== */

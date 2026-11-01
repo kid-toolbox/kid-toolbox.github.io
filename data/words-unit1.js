@@ -8,12 +8,12 @@ window.UNIT1={
   "cn": "这是我的家庭。",
   "pos": "n. 名词"
  },
- "parents": {
-  "ipa": "ˈpeərənts",
-  "syl": "par·ents",
-  "zh": "父母",
-  "en": "My parents are at home.",
-  "cn": "我爸爸妈妈在家。",
+ "parent": {
+  "ipa": "ˈpeərənt",
+  "syl": "par·ent",
+  "zh": "家长；父亲（或母亲）",
+  "en": "My parent is at home.",
+  "cn": "我的家长在家。",
   "pos": "n. 名词"
  },
  "mother": {
